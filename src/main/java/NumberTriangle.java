@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -42,7 +44,6 @@ public class NumberTriangle {
         this.left = left;
     }
 
-
     public void setRight(NumberTriangle right) {
         this.right = right;
     }
@@ -76,9 +77,9 @@ public class NumberTriangle {
      * Follow path through this NumberTriangle structure ('l' = left; 'r' = right) and
      * return the root value at the end of the path. An empty string will return
      * the root of the NumberTriangle.
-     *
+
      * You can decide if you want to use a recursive or an iterative approach in your solution.
-     *
+
      * You can assume that:
      *      the length of path is less than the height of this NumberTriangle structure.
      *      each character in the string is either 'l' or 'r'
@@ -88,15 +89,27 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        // TODO implement this method
-        return -1;
+        NumberTriangle curr = this;
+
+        for (int i = 0; i < path.length(); i++) {
+            char ch = path.charAt(i);
+            if (ch == 'l') {
+                curr = curr.left;
+            } else if (ch == 'r') {
+                curr = curr.right;
+            } else {
+                return curr.root;
+            }
+        }
+
+        return curr.root;
     }
 
     /** Read in the NumberTriangle structure from a file.
-     *
+
      * You may assume that it is a valid format with a height of at least 1,
      * so there is at least one line with a number on it to start the file.
-     *
+
      * See resources/input_tree.txt for an example NumberTriangle format.
      *
      * @param fname the file to load the NumberTriangle structure from
@@ -109,23 +122,28 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-
-        // TODO define any variables that you want to use to store things
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
+        ArrayList<NumberTriangle> prevRow = new ArrayList<>();
         NumberTriangle top = null;
 
         String line = br.readLine();
         while (line != null) {
+            String[] values = line.trim().split("\\s+");
+            ArrayList<NumberTriangle> currRow = new ArrayList<>();
 
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
+            for (String value : values) {
+                currRow.add(new NumberTriangle(Integer.parseInt(value)));
+            }
+            if (top == null) {
+                top = currRow.get(0);
+            }
+            for (int i = 0; i < prevRow.size(); i++) {
+                prevRow.get(i).setLeft(currRow.get(i));
+                prevRow.get(i).setRight(currRow.get(i + 1));
+            }
 
-            // TODO process the line
-
-            //read the next line
+            prevRow = currRow;
             line = br.readLine();
+
         }
         br.close();
         return top;

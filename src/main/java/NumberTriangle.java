@@ -89,18 +89,20 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        if (path.isEmpty()) {
-            return this.getRoot();
+        NumberTriangle curr = this;
+
+        for (int i = 0; i < path.length(); i++) {
+            char ch = path.charAt(i);
+            if (ch == 'l') {
+                curr = curr.left;
+            } else if (ch == 'r') {
+                curr = curr.right;
+            } else {
+                return curr.root;
+            }
         }
-        else if (path.startsWith("l")) {
-            return this.left.getRoot();
-        }
-        else if (path.startsWith("r")) {
-            return this.right.getRoot();
-        }
-        else {
-            return this.getRoot() + this.retrieve(path.substring(1));
-        }
+
+        return curr.root;
     }
 
     /** Read in the NumberTriangle structure from a file.
@@ -120,30 +122,23 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-        // TODO define any variables that you want to use to store things
-        List<NumberTriangle> prevRow = new ArrayList<>();
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
+        ArrayList<NumberTriangle> prevRow = new ArrayList<>();
         NumberTriangle top = null;
 
         String line = br.readLine();
         while (line != null) {
-            System.out.println(line);
-            String[] values = line.split("\\s+");
-            List<NumberTriangle> currRow = new ArrayList<>();
+            String[] values = line.trim().split("\\s+");
+            ArrayList<NumberTriangle> currRow = new ArrayList<>();
 
+            for (String value : values) {
+                currRow.add(new NumberTriangle(Integer.parseInt(value)));
+            }
             if (top == null) {
-                top = new NumberTriangle(Integer.parseInt(values[0]));
+                top = currRow.get(0);
             }
-            for (int i = 1; i < values.length; i++) {
-                currRow.add(new NumberTriangle(Integer.parseInt(values[i])));
-            }
-            if (!prevRow.isEmpty()) {
-                for (int i = 0; i < prevRow.size(); i++) {
-                    prevRow.get(i).setLeft(currRow.get(i));
-                    prevRow.get(i).setRight(currRow.get(i + 1));
-                }
+            for (int i = 0; i < prevRow.size(); i++) {
+                prevRow.get(i).setLeft(currRow.get(i));
+                prevRow.get(i).setRight(currRow.get(i + 1));
             }
 
             prevRow = currRow;
